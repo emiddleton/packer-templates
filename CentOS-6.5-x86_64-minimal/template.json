@@ -1,0 +1,50 @@
+{
+  "variables": {
+    "mirror": "https://mirrors.vortorus.net/centos-vault",
+    "disk_size": 10140
+  },
+
+  "builders": [
+    {
+      "name": "centos-6.5-x86_64-minimal",
+
+      "type": "qemu",
+      "format": "qcow2",
+      "accelerator": "kvm",
+      "disk_size": "{{ user `disk_size`}}",
+
+      "http_directory": "http",
+
+      "iso_url": "{{user `mirror`}}/6.5/isos/x86_64/CentOS-6.5-x86_64-minimal.iso",
+      "iso_checksum": "0d9dc37b5dd4befa1c440d2174e88a87",
+      "iso_checksum_type": "md5",
+
+      "ssh_username": "packer",
+      "ssh_password": "packer",
+      "shutdown_command": "echo '/sbin/halt -h -p' > shutdown.sh; echo 'vagrant'|sudo -S sh 'shutdown.sh'",
+
+      "boot_command": [
+        "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg<enter><wait>"
+      ]
+    }
+  ],
+
+  "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "echo 'packer'|{{ .Vars }} sudo -E -S sh '{{.Path}}'",
+      "scripts": [
+        "scripts/base.sh",
+        "scripts/vagrant.sh",
+        "scripts/cleanup.sh",
+        "scripts/zerodisk.sh"
+      ]
+    }
+  ],
+
+  "post-processors": [
+    {
+      "type": "vagrant"
+    }
+  ]
+}

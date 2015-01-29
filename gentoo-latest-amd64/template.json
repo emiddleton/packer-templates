@@ -1,0 +1,70 @@
+{
+  "variables": {
+    "mirror": "http://distfiles.gentoo.org",
+    "kernel_version": "3.17.7",
+    "timezone": "UTC",
+    "locale": "en_US.utf8",
+    "disk_size": 20280
+  },
+
+  "builders": [
+    {
+      "type": "qemu",
+      "format": "qcow2",
+      "accelerator": "kvm",
+      "disk_size": "{{ user `disk_size`}}",
+
+      "iso_url": "{{user `mirror`}}/releases/amd64/autobuilds/20141204/install-amd64-minimal-20141204.iso",
+      "iso_checksum": "da1600ff0e252d208da1ea7354349f0b",
+      "iso_checksum_type": "md5",
+
+      "http_directory": "http",
+
+      "ssh_username": "root",
+      "ssh_password": "packer",
+      "shutdown_command": "echo 'shutdown -hP now' > shutdown.sh; cat 'shutdown.sh'|su -",
+
+      "boot_command": [
+        "<wait><wait><wait>",
+        "gentoo-nofb dosshd passwd=packer nodmraid nofirewire nogpm nokeymap nosound<enter><wait>"
+      ]
+    }
+  ],
+
+  "provisioners": [
+    {
+      "type": "shell",
+      "environment_vars": [
+        "distfile_url={{user `mirror`}}",
+        "kernel_version={{user `kernel_version`}}",
+        "kernel_image_version={{user `kernel_version`}}-gentoo",
+        "timezone={{user `timezone`}}",
+        "locale={{user `locale`}}"
+      ],
+      "scripts": [
+        "scripts/settings.sh",
+        "scripts/base.sh",
+        "scripts/kernel.sh",
+        "scripts/usb.sh",
+        "scripts/git.sh",
+        "scripts/subversion.sh",
+        "scripts/vagrant.sh",
+        "scripts/ruby.sh",
+        "scripts/add_vim.sh",
+        "scripts/cron.sh",
+        "scripts/syslog.sh",
+        "scripts/nfs.sh",
+        "scripts/grub.sh",
+        "scripts/wipe_sources.sh",
+        "scripts/cleanup.sh",
+        "scripts/zerodisk.sh"
+      ]
+    }
+  ],
+
+  "post-processors": [
+    {
+      "type": "vagrant"
+    }
+  ]
+}

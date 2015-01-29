@@ -1,0 +1,9 @@
+Vagrant.configure("2") do |c|
+  c.vm.box = "opscode-centos-64"
+  c.vm.box_url = "file:////home/edward/work/emiddleton-veewee/CentOS-6.4-x86_64-minimal/packer_centos-6.4-x86_64-minimal_libvirt.box"
+  c.vm.hostname = "testbox.vagrantup.com"
+  c.vm.synced_folder ".", "/vagrant", disabled: true
+  c.vm.provider :libvirt do |p|
+  end
+end
+
